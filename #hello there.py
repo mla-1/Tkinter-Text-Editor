@@ -1,3 +1,1 @@
-#hello there
-
-five = 5
+import tkinter
