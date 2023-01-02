@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, Frame, Menu, Toplevel, Label
+from tkinter import filedialog, Frame, Menu, Toplevel, Label, Text, BOTH
 
 #root window
 main_window = tk.Tk()
@@ -9,7 +9,6 @@ main_window .geometry("1280x720")
 
 #title of the program
 main_window .title("The Text Editor")
-
 
 #opens a file dialog
 def UploadAction(event=None):
@@ -44,27 +43,26 @@ filemenu = Menu(menubar)
 filemenu.add_command(label='New')
 filemenu.add_command(label='Open', command=UploadAction)
 filemenu.add_command(label='Save')
+filemenu.add_command(label='Save As')
 
+#adds a separator 
 filemenu.add_separator()
 
 filemenu.add_command(label='Close', command=main_window.destroy)
 
 menubar.add_cascade(label='File',menu=filemenu)
 
-
-
+#help menu options
 helpmenu = Menu(menubar)
 
 helpmenu.add_command(label='Version', command=Version)
 helpmenu.add_command(label='About', command=About)
 
-
+#adds the helpmenu to the menubar
 menubar.add_cascade(label='Help',menu=helpmenu)
 
-#main frame that will be housing the text that the user
-#will interact with
-#frame1 = Frame(main_window,bg='white', highlightbackground='black', highlightthickness=1,width=1280,height=720)
-#frame1.grid(row=1,columnspan=2)
 
+text = Text(main_window)
+text.pack(expand=True, fill=BOTH)
 
 main_window.mainloop()
