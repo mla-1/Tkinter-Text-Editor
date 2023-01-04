@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, Frame, Menu, Toplevel, Label, Text, BOTH, INSERT, END
+from tkinter import filedialog, Frame, Menu, Toplevel, Label, Text, BOTH, INSERT, END, filedialog
 
 current_working_file = ""
 
@@ -28,6 +28,18 @@ def SaveFile():
         f.write(text.get(1.0, END))
         f.close()
 
+
+def SaveAs():
+    file_types = [('All Files', '*.*'), 
+             ('Python Files', '*.py'),
+             ('Text Document', '*.txt')]
+    file = filedialog.asksaveasfile(mode='w', defaultextension=file_types)
+    if file is None:
+        return
+    text_saving = (text.get(1.0, END))
+    file.write(text_saving)
+    file.close()
+
 #Version Popup 
 def Version():
     top = Toplevel(main_window)
@@ -54,7 +66,7 @@ filemenu = Menu(menubar)
 filemenu.add_command(label='New')
 filemenu.add_command(label='Open', command=UploadAction)
 filemenu.add_command(label='Save', command=SaveFile)
-filemenu.add_command(label='Save As')
+filemenu.add_command(label='Save As', command=SaveAs)
 
 #adds a separator 
 filemenu.add_separator()
