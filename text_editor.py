@@ -3,8 +3,15 @@ from tkinter import filedialog, Frame, Menu, Toplevel, Label, Text, BOTH, INSERT
 
 current_working_file = ""
 
+global clipboard 
+
+global curser_pos
+
 #root window
 main_window = tk.Tk()
+
+text = Text(main_window, undo=True)
+text.pack(expand=True, fill=BOTH)
 
 #sets the initial dimensions of the window
 main_window.geometry("1280x720")
@@ -56,6 +63,42 @@ def About():
     Label(top, text="Text Editor is a lightweight minimalistic text editor").place(x=25,y=100)
     Label(top, text="written in Python with the Tkinter library").place(x=25,y=120)
 
+
+def CopyText():
+    global clipboard
+    global curser_pos 
+    content = text.selection_get()
+    clipboard = content
+    curser_pos = text.index(INSERT)
+
+def CutText():
+    global clipboard
+    global curser_pos
+    content = text.selection_get()
+    clipboard = content
+    text.delete('sel.first','sel.last')
+    curser_pos = text.index(INSERT)
+
+
+def PasteText():
+    global clipboard
+    global curser_pos
+    text.insert(curser_pos, clipboard)
+
+def checkpos(event):
+    global curser_pos
+    curser_pos = text.index(INSERT)
+    print(text.index(INSERT))
+
+def undo():
+    text.edit_undo()
+def redo():
+    text.edit_redo()
+
+text.bindtags(('Text','track-mouse-pos', '.','all'))
+text.bind_class('track-mouse-pos', '<KeyPress>', checkpos)
+text.bind_class('track-mouse-pos', '<Button-1>', checkpos)
+
 #creates a menu bar
 menubar = Menu(main_window)
 main_window.config(menu=menubar)
@@ -87,14 +130,14 @@ menubar.add_cascade(label='Help',menu=helpmenu)
 #edit menu options
 editmenu = Menu(menubar)
 
-editmenu.add_command(label='Undo')
-editmenu.add_command(label='Redo')
+editmenu.add_command(label='Undo', command=undo)
+editmenu.add_command(label='Redo', command=redo)
 
 editmenu.add_separator()
 
-editmenu.add_command(label='Cut')
-editmenu.add_command(label='Copy')
-editmenu.add_command(label='Paste')
+editmenu.add_command(label='Cut', command=CutText)
+editmenu.add_command(label='Copy', command=CopyText)
+editmenu.add_command(label='Paste', command=PasteText)
 
 editmenu.add_separator()
 
@@ -102,8 +145,5 @@ editmenu.add_command(label='Find')
 editmenu.add_command(label='Replace')
 
 menubar.add_cascade(label='Edit', menu=editmenu)
-
-text = Text(main_window)
-text.pack(expand=True, fill=BOTH)
 
 main_window.mainloop()
