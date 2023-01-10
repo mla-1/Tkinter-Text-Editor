@@ -1,11 +1,12 @@
 import tkinter as tk
-from tkinter import filedialog, Frame, Menu, Toplevel, Label, Text, BOTH, INSERT, END, filedialog
+from tkinter import filedialog, Frame, Menu, Toplevel, Label, Text, BOTH, INSERT, END, filedialog, Button, messagebox
 
 current_working_file = ""
 
 global clipboard 
 
 global curser_pos
+
 
 #root window
 main_window = tk.Tk()
@@ -35,7 +36,8 @@ def SaveFile():
         f.write(text.get(1.0, END))
         f.close()
 
-
+#Saves the current info in the text widget to a
+#new file with a name selected by the user
 def SaveAs():
     file_types = [('All Files', '*.*'), 
              ('Python Files', '*.py'),
@@ -63,7 +65,9 @@ def About():
     Label(top, text="Text Editor is a lightweight minimalistic text editor").place(x=25,y=100)
     Label(top, text="written in Python with the Tkinter library").place(x=25,y=120)
 
-
+#Copies the text that is selected by the cursor into
+#the clipboard
+#sets the cursor position to the current text selection
 def CopyText():
     global clipboard
     global curser_pos 
@@ -71,6 +75,8 @@ def CopyText():
     clipboard = content
     curser_pos = text.index(INSERT)
 
+#sets the current selected text to the clipboard
+#deletes the selection and then sets the cursor pos to the last text index
 def CutText():
     global clipboard
     global curser_pos
@@ -79,21 +85,89 @@ def CutText():
     text.delete('sel.first','sel.last')
     curser_pos = text.index(INSERT)
 
-
+#pastes the text from the clipboard to the cursor position,
+#which is the last place the user clicks within the text widget
 def PasteText():
     global clipboard
     global curser_pos
     text.insert(curser_pos, clipboard)
+
 
 def checkpos(event):
     global curser_pos
     curser_pos = text.index(INSERT)
     print(text.index(INSERT))
 
+#using tkinter's built in stack undoes the most recent thing on the stack
 def undo():
     text.edit_undo()
+
+#using tkinter's built in stack redoes the most recent thing on the stack
 def redo():
     text.edit_redo()
+
+#searches through the text widget for the given input text
+#if nothing is found then it breaks
+#if something is found then it's highlighted 
+#started position is shifted forwards.
+#start is moved forwards thus making the range smaller till the end.
+def search(input_text):
+    print(input_text)
+    pos = '1.0'
+    while True:
+        index = text.search(input_text, pos, END)
+        if not index:
+            break
+        pos = '{}+{}c'.format(index, len(input_text))
+        #get's the position of the word plus the length of the word
+        text.tag_add("start", index, pos)
+        #adds a tag to that position where it starts and ends
+        text.tag_config("start", background= "white", foreground= "black")
+        #specifies the color of the background and foreground of the highlighted word
+        
+def find_and_replace(find, replace):
+    print(find)
+    print(replace)
+
+#creates the dialog box for finding text
+def FindText():
+    #clears the search upon closing the search dialog window
+    def clear_search():
+            text.tag_remove("start", "1.0",'end')
+            top.destroy()
+    
+    top = Toplevel(main_window)
+    top.geometry("350x100")
+    top.title('Find Text')
+    Label(top, text="Find:").place(x=25,y=25)
+    text_to_find = tk.Entry(top)
+    text_to_find.place(x=70, y=25)
+
+    button = Button(top, text='Find', command = lambda: search(text_to_find.get()))
+    button.place(x=120,y=80)
+
+    button.pack()
+    text_to_find.pack()
+    top.protocol('WM_DELETE_WINDOW',clear_search)
+
+#dialog box that prompts the user for a word
+#to find and a word to replace it with
+def Replace():
+    top_window = Toplevel(main_window)
+    top_window.geometry("350x150")
+    top_window.title("Find and Replace")
+    Label(top_window, text="Find:").place(x=25,y=25)    
+    Label(top_window, text="Replace:").place(x=25,y=50)
+    text_to_find = tk.Entry(top_window)
+    text_to_find.place(x=90, y=25)
+    text_to_replace = tk.Entry(top_window)
+    text_to_replace.place(x=90, y=50)
+
+    button = Button(top_window,text ='Replace', command = lambda: find_and_replace(text_to_find.get(), text_to_replace.get()))
+    button.place(x=200,y=100)
+    button.pack()
+    text_to_find.pack()
+    text_to_replace.pack()
 
 text.bindtags(('Text','track-mouse-pos', '.','all'))
 text.bind_class('track-mouse-pos', '<KeyPress>', checkpos)
@@ -141,8 +215,8 @@ editmenu.add_command(label='Paste', command=PasteText)
 
 editmenu.add_separator()
 
-editmenu.add_command(label='Find')
-editmenu.add_command(label='Replace')
+editmenu.add_command(label='Find', command=FindText)
+editmenu.add_command(label='Replace', command=Replace)
 
 menubar.add_cascade(label='Edit', menu=editmenu)
 
