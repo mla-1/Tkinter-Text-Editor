@@ -124,10 +124,18 @@ def search(input_text):
         #adds a tag to that position where it starts and ends
         text.tag_config("start", background= "white", foreground= "black")
         #specifies the color of the background and foreground of the highlighted word
-        
+
 def find_and_replace(find, replace):
-    print(find)
-    print(replace)
+    pos = '1.0'
+    while True:
+        index_find_word = text.search(find, pos, END)
+        if not index_find_word:
+            break
+        pos = '{}+{}c'.format(index_find_word, len(replace))
+        print(pos)
+        ending_idx = '{}+{}c'.format(index_find_word, len(find))
+        text.replace(index_find_word, ending_idx, replace)
+        
 
 #creates the dialog box for finding text
 def FindText():
