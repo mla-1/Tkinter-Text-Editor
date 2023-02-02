@@ -14,18 +14,22 @@ curser_pos = 0
 #root window
 main_window = tk.Tk()
 
+#main text window
 text = Text(main_window, undo=True)
 
 text.pack(expand=True, fill=BOTH)
 
-
+#label that displays the current time
 current_time = Label(main_window, background='black', foreground='white') 
 
 current_time.pack(side='left')
 
-
+#label that displays the # of lines or lines selected
 line_label = Label(main_window, text=str(int(curser_pos)))
 line_label.pack(side='right')
+
+
+
 
 #sets the initial dimensions of the window
 main_window.geometry("1280x720")
@@ -122,7 +126,7 @@ def checkpos(event):
     global curser_pos
     curser_pos = text.index(INSERT)
     print(text.index(INSERT))
-    line_label.config(text= "line " + curser_pos)
+    line_label.config(text= "line " + str(int(float(curser_pos))))
 
 
 #using tkinter's built in stack undoes the most recent thing on the stack
@@ -210,15 +214,29 @@ def Replace():
     text_to_find.pack()
     text_to_replace.pack()
 
+
 def pos():
     try:
         print(curser_pos)
     except:
         print("Cursor Position is not defined")
 
+#checks if anything is selected within the text widget
+def check_highlight(event):
+    if text.tag_ranges("sel"):
+        print("Something is selected")
+        start = text.index("sel.first")
+        end = text.index("sel.last")
+        difference = int(float(end)) - int(float(start)) + 1
+        line_label.config(text="Lines Selected " + str(difference))
+    else:
+        print("Nothing is selected")
+
+#listeners 
 text.bindtags(('Text','track-mouse-pos', '.','all'))
 text.bind_class('track-mouse-pos', '<KeyPress>', checkpos)
 text.bind_class('track-mouse-pos', '<Button-1>', checkpos)
+text.bind_class('track-mouse-pos','<ButtonRelease-1>', check_highlight)
 
 #creates a menu bar
 menubar = Menu(main_window)
